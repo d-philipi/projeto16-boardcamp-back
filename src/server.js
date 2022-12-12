@@ -9,18 +9,27 @@ const connection = new Pool({
   });
 
 app.get("/categories", async (req, res) => {
-  const categories = await connection.query("SELECT * FROM categories");
-  console.log(categories);
-  res.send(categories.rows);
+  const categoria = await connection.query("SELECT * FROM categories");
+  res.send(categoria.rows);
 });
 
 app.post("/categories", async (req, res) => {
-  const { titulo, ingredientes, preparo } = req.body;
+  const categoria = req.body;
+
+  const categoriaExist = await connection.query(
+    "SELECT * FROM categories WHERE name=($1)",
+    [categoria.name]
+    );
+
+    if (categoriaExist){
+        res.send(409);
+        return
+    }
 
   const result = await connection.query(
-    "INSERT INTO receitas (titulo, ingredientes, preparo) VALUES ($1, $2, $3)",
-    [titulo, ingredientes, preparo]
-  );
+    "INSERT INTO categories ( categoria ) VALUES ($1)",
+    [ categoria ]
+    );
 
   console.log(result)
 
@@ -28,9 +37,9 @@ app.post("/categories", async (req, res) => {
 });
 
 app.get("/games", async (req, res) => {
-  const receitas = await connection.query("SELECT * FROM receitas");
-  console.log(receitas);
-  res.send(receitas.rows);
+  const games = await connection.query("SELECT * FROM games");
+
+  res.send(games.rows);
 });
 
 app.post("/games", async (req, res) => {
